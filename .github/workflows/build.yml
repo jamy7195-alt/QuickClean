@@ -1,0 +1,63 @@
+name: Build
+
+# 每次推送或提 PR 时自动编译验证，确保 Windows 上能编过
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build (win-x64)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore QuickClean.csproj
+
+      - name: Build
+        run: dotnet build QuickClean.csproj -c Release --no-restore -warnaserror
+
+  publish:
+    name: Publish single-file exe
+    runs-on: windows-latest
+    needs: build
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Publish
+        run: >
+          dotnet publish QuickClean.csproj
+          -c Release
+          -r win-x64
+          --self-contained true
+          -o publish
+
+      - name: Show artifact size
+        run: |
+          Get-ChildItem publish\QuickClean.exe | Select-Object Name, Length
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: QuickClean-win-x64
+          path: publish/QuickClean.exe
+          if-no-files-found: error
+          retention-days: 30
