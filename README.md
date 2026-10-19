@@ -232,3 +232,4 @@ System.UnauthorizedAccessException: Access to the path 'C:\Users\...\AppData\Loc
 - 默认「删除到回收站」，可在界面取消勾选改为直接删除。
 - 内存释放对「无响应进程」会提示是否结束；结束进程会导致其未保存数据丢失，请谨慎勾选。
 - 单文件自包含 exe 体积较大（约 60 MB）属正常，因为已包含完整 .NET 8 运行时。
+asdf
